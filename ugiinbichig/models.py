@@ -40,7 +40,7 @@ class User(AbstractBaseUser):
 
 class Human (models.Model):
     human_ID  = models.BigAutoField(auto_created= True, primary_key= True, serialize= False, verbose_name="ID")
-    user_ID = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_ID = models.ForeignKey(User, on_delete=models.CASCADE, null = True, blank = True)
     urgiin_ovog = models.CharField(max_length= 150 )
     ovog = models.CharField(max_length= 150)
     ys_undes = models.CharField(max_length= 150)
@@ -54,7 +54,7 @@ class Human (models.Model):
         ('эмэгтэй', 'Эмэгтэй'),
         ('бусад', 'Бусад')
     ])
-
+    
     def __str__(self):
         return f"{self.name} ({self.RD})"
 
@@ -117,5 +117,22 @@ class Death(models.Model):
 class Image(models.Model):
     img_ID = models.BigAutoField(auto_created= True, primary_key= True, serialize=False,verbose_name="ID", unique=True)
     human = models.ForeignKey(Human , on_delete= models.CASCADE)
-    image = models.ImageField(upload_to='human_image/', null=True, blank=True)
+    image = models.ImageField(upload_to='image/', null=True, blank=True)
     discription = models.CharField(max_length= 250, null = True, blank=True)
+    def __str__(self):
+        return self.discription
+
+
+class Shape (models.Model):
+    shape_id = models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID", unique=True)
+    x = models.FloatField()
+    y = models.FloatField()
+    type = models.CharField(max_length=10)
+    color = models.CharField(max_length=100, blank = True, null=True)
+    parent_id = models.IntegerField(null = True, blank = True)
+    label= models.CharField(max_length=120, null = True, blank = True)
+    human_ID = models.ForeignKey(Human, on_delete=models.CASCADE, null=True, blank=True)  # Хүний мэдээлэлтэй холбох
+    is_verified = models.BooleanField(default=False)  # Баталгаажсан эсэхийг тэмдэглэх талбар
+
+    def __str__(self):
+        return f"Shape {self.shape_id} at ({self.x}, {self.y})"
