@@ -22,6 +22,7 @@ class User(AbstractBaseUser):
     email = models.EmailField(max_length=100, unique=True)
     phone_number = models.CharField(max_length=10, unique=True)
     password = models.CharField(max_length=200)  # Нууц үгийг шифрлэхийн тулд set_password ашиглана
+    verify = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)

@@ -1,7 +1,7 @@
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import Login, Signup, CreateTokenView, UserView, CheckTokenView, HumanView, UserNamtarView, UserImage, ShapeList
+from .views import Login, Signup, CreateTokenView, UserView, CheckTokenView, HumanView, UserNamtarView, UserImage, ShapeList, OPT, ResetPassword
 
 urlpatterns =[
     path('login/', Login.as_view(), name= 'login'),
@@ -16,6 +16,8 @@ urlpatterns =[
     path('save/image/',UserImage.as_view(), name='save_image'),
     path('image/',UserImage.as_view(), name='view_image'),
     path('human/shape/',ShapeList.as_view(), name='shape' ),
+    path('auth/opt/', OPT.as_view(), name='opt'),
+    path('auth/resetPassword/', ResetPassword.as_view(), name='resetPassword'),
 ]
 
 if settings.DEBUG:  # Хөгжүүлэлтийн үед л ажиллана
