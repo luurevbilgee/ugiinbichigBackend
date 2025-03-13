@@ -46,7 +46,7 @@ class Human (models.Model):
     ovog = models.CharField(max_length= 150)
     ys_undes = models.CharField(max_length= 150)
     name = models.CharField(max_length= 150)
-    RD = models.CharField(max_length= 100, verbose_name = "Регистерийн дугаар")
+    RD = models.CharField(max_length= 100, verbose_name = "Регистерийн дугаар", unique=True)
     birth_date = models.DateField()
     birth_counter = models.CharField(max_length= 100)
     birth_year = models .CharField(max_length= 100)
@@ -65,9 +65,9 @@ class Lavlah(models.Model):
 
 class Who (models.Model):
     who_ID = models.BigAutoField(auto_created= True, primary_key= True, serialize= False, verbose_name= "ID", unique = True)
-    human = models.ForeignKey(Human, on_delete = models.CASCADE , related_name="relarions")
+    human = models.ForeignKey(Human, on_delete = models.CASCADE , related_name="relations")
     relations  = models.ForeignKey(Human , on_delete= models.CASCADE ,related_name= "related_to")
-    lavlah = models.ForeignKey(Lavlah, on_delete=models.CASCADE)
+    lavlah = models.CharField(max_length=250)
 
 class LavlahEdu(models.Model):
     lavlahEdu_ID = models.BigAutoField(auto_created= True, primary_key= True, serialize= False, verbose_name= "ID", unique= True)
@@ -132,7 +132,13 @@ class Shape (models.Model):
     color = models.CharField(max_length=100, blank = True, null=True)
     parent_id = models.IntegerField(null = True, blank = True)
     label= models.CharField(max_length=120, null = True, blank = True)
-    human_ID = models.ForeignKey(Human, on_delete=models.CASCADE, null=True, blank=True)  # Хүний мэдээлэлтэй холбох
+    human_ID = models.OneToOneField(
+        Human, 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True, 
+        unique=True  # 🎯 Давхардахаас сэргийлэх
+    )
     is_verified = models.BooleanField(default=False)  # Баталгаажсан эсэхийг тэмдэглэх талбар
 
     def __str__(self):

@@ -9,7 +9,7 @@ class UserSerializers(serializers.ModelSerializer):
 class HumanSerializers(serializers.ModelSerializer):
     class Meta: 
         model = Human
-        fields = [ 'urgiin_ovog', 'ovog', 'ys_undes', 'name' , 'RD', 'birth_date', 'birth_counter', 'birth_year', 'gender']
+        fields = ['urgiin_ovog', 'ovog', 'ys_undes', 'name' , 'RD', 'birth_date', 'birth_counter', 'birth_year', 'gender']
 
 class HumanSaveSerializers(serializers.ModelSerializer):
     urgiin_ovog = serializers.CharField()
@@ -36,7 +36,7 @@ class LavlahSerializers(serializers.ModelSerializer):
 class WhoSerializers(serializers.ModelSerializer):
     class Meta:
         model= Who
-        fields = ['who_ID', 'human_ID', 'relations_ID', 'lavlah_ID']
+        fields = ['who_ID', 'human_id', 'relations_id', 'lavlah_id']
 
 
 class LavlahEduSerializers(serializers.ModelSerializer):
@@ -101,4 +101,4 @@ class ShapeSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Shape
-        fields = ['shape_id', 'x', 'y', 'type', 'color', 'parent_id', 'label', 'human_ID', 'is_verified']
+        fields = ['shape_id', 'x', 'y', 'type', 'color', 'parent_id', 'label', 'human_ID']

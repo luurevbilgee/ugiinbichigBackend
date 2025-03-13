@@ -1,7 +1,7 @@
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import Login, Signup, CreateTokenView, UserView, CheckTokenView, HumanView, UserNamtarView, UserImage, ShapeList, OPT, ResetPassword
+from .views import Login, Signup, CreateTokenView, UserView, CheckTokenView, HumanView, UserNamtarView, UserImage, ShapeList, OPT, ResetPassword, Relation
 
 urlpatterns =[
     path('login/', Login.as_view(), name= 'login'),
@@ -11,13 +11,11 @@ urlpatterns =[
     path('auth/check/', CheckTokenView.as_view(), name  ='check_token'),
     path('human/', HumanView.as_view(), name ="human"),
     path('user/namtar', UserNamtarView.as_view(), name ="user_namtar"),
-    path('namtar/', UserNamtarView.as_view(), name ="namtar"),
-    path('put/namtar/', UserNamtarView.as_view(), name= 'put_namtar'),
-    path('save/image/',UserImage.as_view(), name='save_image'),
     path('image/',UserImage.as_view(), name='view_image'),
     path('human/shape/',ShapeList.as_view(), name='shape' ),
     path('auth/opt/', OPT.as_view(), name='opt'),
     path('auth/resetPassword/', ResetPassword.as_view(), name='resetPassword'),
+    path('relation/', Relation.as_view(), name ='relation'),
 ]
 
 if settings.DEBUG:  # Хөгжүүлэлтийн үед л ажиллана

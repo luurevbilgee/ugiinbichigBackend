@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import User, Human,Image, Shape
+from .models import User, Human,Image, Shape ,Who
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -128,7 +128,6 @@ class UserNamtarView(APIView):
         birth_counter = data.validated_data["birth_year"]
         birth_year = data.validated_data["birth_year"]
         gender = data.validated_data["gender"]
-        print(urgiin_ovog, ovog, ys_undes, name, RD, birth_date, birth_year, birth_counter, gender)
         try:
             user = request.user
             id = User.objects.get(id = user.id)
@@ -136,6 +135,7 @@ class UserNamtarView(APIView):
             human.save()
             return Response({
                 'status': 'success',
+                'data': human.human_ID,
             }, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -207,15 +207,74 @@ class HumanView(APIView):
         gender = data.validated_data["gender"]
         print(urgiin_ovog, ovog, ys_undes, name, RD, birth_date, birth_year, birth_counter, gender)
         try:
-            user = request.user
-            id = User.objects.get(id = user.id)
-            human = Human(user_ID = id ,urgiin_ovog = urgiin_ovog, ovog = ovog, ys_undes = ys_undes, name = name, RD = RD, birth_date= birth_date , birth_counter = birth_counter, birth_year= birth_year, gender = gender)
+            human = Human(urgiin_ovog = urgiin_ovog, ovog = ovog, ys_undes = ys_undes, name = name, RD = RD, birth_date= birth_date , birth_counter = birth_counter, birth_year= birth_year, gender = gender)
             human.save()
             return Response({
                 'status': 'success',
+                'data': human.human_ID,
             }, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+              
+    def get(self, request):
+        try:
+            human_ID = request.query_params.get('id')
+            print(human_ID)
+            if not human_ID:  # Хоосон эсэхийг шалгах
+                return Response({
+                    "status": "fail",
+                    "message": "human_ID параметр шаардлагатай."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            humans = Human.objects.filter(human_ID=human_ID)  # Шүүлт хийх
+
+            if not humans:  # QuerySet хоосон эсэхийг шалгах
+                return Response({
+                    "status": "fail",
+                    "message": "No related Human records found for the user."
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            return Response({
+                "status": "success",
+                "data": HumanSaveSerializers(humans, many=True).data
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                "status": "error",
+                "message": "Internal server error",
+                "details": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        
+    def put(self, request):
+        try:
+            user = request.user  # Одоогийн хэрэглэгчийг авна
+            humans = Human.objects.filter(user_ID_id=user.id)  
+
+            if not humans.exists():  # Хоосон эсэхийг шалгах
+                return Response({
+                    "status": "fail",
+                    "message": "No related Human records found for the user."
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            # Оруулсан өгөгдлийг авах
+            data = request.data
+
+            # Бичлэг бүрийг шинэчлэнэ
+            for human in humans:
+                for key, value in data.items():
+                    setattr(human, key, value)  # Өгөгдлийг шинэчилнэ
+                human.save()  # Бичлэг хадгалах
+
+            return Response({
+                "status": "success",
+                "message": "Records updated successfully."
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
    
 class UserImage(APIView):
@@ -286,50 +345,122 @@ class ShapeList(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        shape_id = request.query_params.get("shapeID")
         try:
-            shapes = Shape.objects.all()
+            if not shape_id:  # shape_id байхгүй эсвэл хоосон бол
+                shapes = Shape.objects.all()
+                
+                if not shapes.exists():
+                    return Response({
+                        'status': 'error',
+                        'message': 'Дүрс олдсонгүй',
+                        'data': None
+                    }, status=status.HTTP_404_NOT_FOUND)
 
-            if not shapes:
+                # ✅ ShapeSerializer-д `many=True` тохиргоотой serialize хийх
+                shape_data = ShapeSerializer(shapes, many=True).data
+
                 return Response({
-                    'error': 'No shapes found for this user.','data':'null'
-                })
+                    'status': 'success',
+                    'data': shape_data
+                }, status=status.HTTP_200_OK)
 
-            shape = ShapeSerializer(shapes, many=True)
+            else:
+                shape = Shape.objects.filter(shape_id=shape_id).first()
 
-            if len(shape.data) == 0:
+                if not shape:
+                    return Response({
+                        'status': 'error',
+                        'message': 'Дүрс олдсонгүй',
+                        'data': None
+                    }, status=status.HTTP_404_NOT_FOUND)
+
+                shape_data = ShapeSerializer(shape).data
+
                 return Response({
-                    'error': 'No images found for this user.'
-                }, status=status.HTTP_404_NOT_FOUND)
-
-            return Response({'status': 'success', 'data': shape.data}, status=status.HTTP_200_OK)
+                    'status': 'success',
+                    'data': shape_data
+                }, status=status.HTTP_200_OK)
 
         except Exception as e:
-            logger.error(f"Error fetching shapes for user {request.user.id}: {str(e)}")
+            logger.error(f"Error fetching shape {shape_id}: {str(e)}")
             return Response({
-                'error': str(e),
-                'details': 'Something went wrong while retrieving the shape.'
+                'status': 'error',
+                'message': 'Internal server error',
+                'details': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
     def post(self, request):
-        print("Received data:", request.data)  # Log the incoming data
-        shapes_data = request.data  # Directly access request.data as it is already a list
-        print(shapes_data)
-        
-        if not shapes_data:
-            return Response({"error": "Shape data is required"}, status=status.HTTP_400_BAD_REQUEST)
+        shape_data = request.data
+        try:
+            human_ID = shape_data.get("human_ID")
+            existing_shape = Shape.objects.filter(human_ID=human_ID).first()
+            if existing_shape and existing_shape.human:
+                return Response({
+                    "status": "error",
+                    "message": f"Shape {human_ID} already has a human assigned."
+                }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Human ID-г shape мэдээлэлд нэмэх
-        for shape_data in shapes_data:
             serializer = ShapeSerializer(data=shape_data)
-            print(serializer)
             if serializer.is_valid():
-                serializer.save()  # Shape хадгалах
+                serializer.save()
             else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  # Алдаа гарсан тохиолдолд
+                return Response({
+                    "status": "error",
+                    "message": "Invalid data",
+                    "errors": serializer.errors
+                }, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"status": "success"}, status=status.HTTP_201_CREATED)  # Хариу амжилттай хадгалагдсан бол
+            return Response({
+                "status": "success",
+                "message": "Shapes created successfully"
+            }, status=status.HTTP_201_CREATED)
 
+        except Exception as e:
+            logger.error(f"Error creating shapes: {str(e)}")
+            return Response({
+                "status": "error",
+                "message": "Internal server error",
+                "details": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    def put(self, request, shape_id):
+        try:
+            shape = Shape.objects.filter(shape_id=shape_id).first()
+            if not shape:
+                return Response({
+                    "status": "error",
+                    "message": "Shape not found"
+                }, status=status.HTTP_404_NOT_FOUND)
+
+            # Хэрэв shape-д холбогдсон human байгаа эсэхийг шалгах
+            if shape.human:
+                return Response({
+                    "status": "error",
+                    "message": f"Shape {shape_id} already has a human assigned."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            serializer = ShapeSerializer(shape, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({
+                    "status": "success",
+                    "data": serializer.data
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    "status": "error",
+                    "message": "Хүчингүй өгөгдөл",
+                    "errors": serializer.errors
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            logger.error(f"Error updating shape {shape_id}: {str(e)}")
+            return Response({
+                "status": "error",
+                "message": "Дотоод серверийн алдаа",
+                "details": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class OPT(APIView):
     permission_classes = [AllowAny]
@@ -406,3 +537,26 @@ class ResetPassword(APIView):
         user.set_password(new_password)
         user.save()
         return Response({"status": "success", "message": "Нууц үг амжилттай шинэчлэгдлээ."})
+    
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from .models import Who, User  # Загвараа зөв импортлоорой
+
+class Relation(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        human_ID = request.data.get("human_ID")
+        relation_ID = request.data.get("relation_ID")
+        nershil = request.data.get("nershil")
+
+        try:
+            relation = Who.objects.create(human_id=human_ID, relations_id=relation_ID, lavlah=nershil)
+            return Response({
+                'status': 'success',
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
