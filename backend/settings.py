@@ -14,7 +14,10 @@ from pathlib import Path
 from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+import os
+# BAS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -170,10 +173,7 @@ SIMPLE_JWT = {
 AUTH_USER_MODEL = 'ugiinbichig.User'
 
 
-import os
-img_base = 'D:/bilgee/tosol/media'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(img_base,'media')
+
 
 
 
