@@ -6,4 +6,4 @@ from ugiinbichig.models import  Marry
 class MarrySerializers(serializers.ModelSerializer):
     class Meta:
         model= Marry
-        fields= ['marry_ID', 'human_ID', 'marryd', 'marry_date']
+        fields= ['marry_ID', 'human', 'marryd', 'marry_date']
