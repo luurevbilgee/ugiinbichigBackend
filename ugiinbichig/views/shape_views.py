@@ -13,11 +13,12 @@ logger = logging.getLogger(__name__)
 class ShapeList(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
+        user = request.user.id
         shape_id = request.query_params.get("shapeID")
         try:
             if not shape_id:  # shape_id байхгүй эсвэл хоосон бол
-                shapes = Shape.objects.all()
-                
+                shapes = Shape.objects.filter(user_id=user)
+              
                 if not shapes.exists():
                     return Response({
                         'status': 'error',
@@ -27,14 +28,14 @@ class ShapeList(APIView):
 
                 # ✅ ShapeSerializer-д `many=True` тохиргоотой serialize хийх
                 shape_data = ShapeSerializer(shapes, many=True).data
-
                 return Response({
                     'status': 'success',
                     'data': shape_data
                 }, status=status.HTTP_200_OK)
 
             else:
-                shape = Shape.objects.filter(shape_id=shape_id).first()
+                shape = Shape.objects.filter(shape_id=shape_id, user_id=user).first()
+
 
                 if not shape:
                     return Response({
@@ -60,6 +61,7 @@ class ShapeList(APIView):
 
     def post(self, request):
         shape_data = request.data
+        user = request.user.id
         try:
             human_ID = shape_data.get("human_ID")
             existing_shape = Shape.objects.filter(human_ID=human_ID).first()
@@ -71,7 +73,7 @@ class ShapeList(APIView):
 
             serializer = ShapeSerializer(data=shape_data)
             if serializer.is_valid():
-                serializer.save()
+                serializer.save( user_id=user)
             else:
                 return Response({
                     "status": "error",
@@ -92,7 +94,8 @@ class ShapeList(APIView):
                 "details": str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def put(self, request, shape_id):
+    def put(self, request):
+        shape_id = request.data.get('id')
         try:
             shape = Shape.objects.filter(shape_id=shape_id).first()
             if not shape:
@@ -101,20 +104,24 @@ class ShapeList(APIView):
                     "message": "Shape not found"
                 }, status=status.HTTP_404_NOT_FOUND)
 
-            # Хэрэв shape-д холбогдсон human байгаа эсэхийг шалгах
-            if shape.human:
-                return Response({
-                    "status": "error",
-                    "message": f"Shape {shape_id} already has a human assigned."
-                }, status=status.HTTP_400_BAD_REQUEST)
+            # # Хэрэв shape-д холбогдсон human байгаа эсэхийг шалгах
+            # if shape.human_ID:
+            #     return Response({
+            #         "status": "error",
+            #         "message": f"Shape {shape_id} already has a human assigned."
+            #     }, status=status.HTTP_400_BAD_REQUEST)
 
             serializer = ShapeSerializer(shape, data=request.data, partial=True)
+            if not serializer.is_valid():
+                print("Serializer validation errors:", serializer.errors)  # Энэ мөрийг нэ
             if serializer.is_valid():
+                
                 serializer.save()
                 return Response({
                     "status": "success",
                     "data": serializer.data
                 }, status=status.HTTP_200_OK)
+            
             else:
                 return Response({
                     "status": "error",

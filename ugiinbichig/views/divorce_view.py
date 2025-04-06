@@ -18,9 +18,6 @@ class DivorceView(APIView):
             if not divorce:
                 return Response({"error": "Divorce record not found"}, status=status.HTTP_404_NOT_FOUND)
             serializer = DivorceSerializers(divorce)
-        else:
-            divorces = Divorce.objects.all()
-            serializer = DivorceSerializers(divorces, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from ugiinbichig.models import  Human
+from ugiinbichig.models import  Human,User
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -37,9 +37,11 @@ class HumanView(APIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
               
     def get(self, request):
+        user= request.user
+        id = User.objects.get(id = user.id)
         try:
             human_ID = request.query_params.get('id')
-            print(human_ID)
+            
             if not human_ID:  # Хоосон эсэхийг шалгах
                 return Response({
                     "status": "fail",

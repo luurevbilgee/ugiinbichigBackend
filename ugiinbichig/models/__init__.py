@@ -10,3 +10,5 @@ from .mergejil_model import Mergejil
 from .school_model import School
 from .shape_model import Shape
 from .video_model import Video
+from .punishment_model import Punishment
+from .profile_model import ProfilePicture

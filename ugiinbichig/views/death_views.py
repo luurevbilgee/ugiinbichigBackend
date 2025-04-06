@@ -11,25 +11,22 @@ class DeathView(APIView):
 
     # Бүх нас баралтын бүртгэл эсвэл нэгийг авах
     def get(self, request):
-        death_id = request.query_params.get('id')
+        human = request.query_params.get('human_ID')
 
-        if death_id:
-            death = Death.objects.filter(death_ID=death_id).first()
+        if human:
+            death = Death.objects.filter(human=human).first()
             if not death:
                 return Response({"error": "Death record not found"}, status=status.HTTP_404_NOT_FOUND)
             serializer = DeathSerializers(death)
-        else:
-            deaths = Death.objects.all()
-            serializer = DeathSerializers(deaths, many=True)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({'status':'success', 'data':serializer.data}, status=status.HTTP_200_OK)
 
     # Нас баралтын бүртгэл үүсгэх
     def post(self, request):
         serializer = DeathSerializers(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({'status':'success'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # Нас баралтын бүртгэл шинэчлэх

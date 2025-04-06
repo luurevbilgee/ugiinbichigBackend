@@ -16,14 +16,10 @@ class UserImage(APIView):
         data = ImageSerializers(data=request.data) 
         if data.is_valid():
             try:
-                user = request.user
-
-                # Human обьектийг шалгах
-                human = Human.objects.get(user_ID_id=user.id)
-
+                human = request.query_params.get('humanID')
                 # Шинэ зураг хадгалах
                 setImage = Image.objects.create(
-                    human_id=human.human_ID,
+                    human_id=human,
                     image=data.validated_data['image'],
                     discription=data.validated_data['discription']
                 )
@@ -51,38 +47,39 @@ class UserImage(APIView):
         
     def get(self, request):
         try:
-            user = request.user
-            import os
-            print(os.path.join(settings.MEDIA_ROOT, 'image', 'download_z2fzqzk.png'))
-            # Human-ийг шалгах
-            human = Human.objects.get(user_ID_id=user.id)
+            human_ID = request.query_params.get("human_ID")
+            # human_ID орж ирсэн эсэхийг шалгах
+            if not human_ID:
+                return Response({"error": "human_ID is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Human-д холбогдсон зургуудыг авах
-            images = Image.objects.filter(human_id=human.human_ID)
+            # Human-ийг хайх
+            try:
+                human = Human.objects.get(human_ID=human_ID)
+            except Human.DoesNotExist:
+                return Response({"error": "Human not found."}, status=status.HTTP_404_NOT_FOUND)
+
+            # Human-д холбогдсон бүх зургуудыг авах
+            images = Image.objects.filter(human=human)
             if not images.exists():
                 return Response({
-                    'error': 'No images found for this user.'
+                    'error': 'No images found for this human.'
                 }, status=status.HTTP_404_NOT_FOUND)
 
-            # Сүүлчийн зургийг авах
-            latest_image = images.last()
-            full_image_url = f"{settings.MEDIA_URL}{latest_image.image}"
-
-            # Амжилттай хариу буцаах
+            # Зургийг сериализация хийх
+            serialized_images = ImageSerializers(images, many=True).data
             return Response({
                 'status': 'success',
-                'data': {
-                    'image': full_image_url,
-                    'description': latest_image.discription
-                }
+                'data': serialized_images
             }, status=status.HTTP_200_OK)
 
-        except Human.DoesNotExist:
-            return Response({
-                'error': 'Human profile not found for this user.'
-            }, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response({
-                'error': str(e),
-                'details': 'Something went wrong while fetching the image.'
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def delete(self, request):
+            image = request.query_params.get('id')
+            images = Image.objects.filter(img_ID=image).first()
+            print(images)
+            if not images:
+                return Response({"error": "images record not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            images.delete()
+            return Response({"message": "Health record deleted successfully"}, status=status.HTTP_204_NO_CONTENT)

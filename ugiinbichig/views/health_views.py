@@ -11,29 +11,34 @@ class HealthView(APIView):
     # Бүх эрүүл мэндийн бүртгэл эсвэл тодорхой нэгийг авах
     def get(self, request):
         health_id = request.query_params.get('id')
-
+        human_id = request.query_params.get('human_id')
         if health_id:
             health = Health.objects.filter(health_ID=health_id).first()
             if not health:
                 return Response({"error": "Health record not found"}, status=status.HTTP_404_NOT_FOUND)
             serializer = HealthSerializers(health)
-        else:
-            healths = Health.objects.all()
-            serializer = HealthSerializers(healths, many=True)
+            return Response({'status':'success','data':serializer.data}, status=status.HTTP_200_OK)
+        if human_id:
+            health = Health.objects.filter(human_id=human_id)
+            if not health:
+                return Response({"error": "Health record not found"}, status=status.HTTP_404_NOT_FOUND)
+            serializer = HealthSerializers(health, many=True)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({'status':'success','data':serializer.data}, status=status.HTTP_200_OK)
+        return Response({"error": "Health record not found"}, status=status.HTTP_404_NOT_FOUND)
 
     # Эрүүл мэндийн бүртгэл нэмэх
     def post(self, request):
         serializer = HealthSerializers(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({'status':'success'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # Эрүүл мэндийн бүртгэл шинэчлэх
     def put(self, request):
         health_id = request.data.get('health_ID')
+        print(health_id)
         health = Health.objects.filter(health_ID=health_id).first()
         if not health:
             return Response({"error": "Health record not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -41,7 +46,7 @@ class HealthView(APIView):
         serializer = HealthSerializers(health, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({'status':'success','data':serializer.data}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     # Эрүүл мэндийн бүртгэл устгах

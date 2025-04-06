@@ -5,4 +5,4 @@ from ugiinbichig.models import  Image
 class ImageSerializers(serializers.ModelSerializer):
     class Meta:
         model = Image
-        fields = [ 'image', 'discription']
+        fields = ['img_ID', 'image', 'discription']

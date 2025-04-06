@@ -8,7 +8,9 @@ urlpatterns = [
     path('relation/', include('ugiinbichig.urls.relation_urls')),
     path('death/', include('ugiinbichig.urls.death_urls')),
     path('health/', include('ugiinbichig.urls.health_urls')),
-    path('marriegeStatus/',include('ugiinbichig.urls.marriagStatus')),
+    path('marriageStatus/',include('ugiinbichig.urls.marriagStatus')),
     path('study/', include('ugiinbichig.urls.study_urls')),
-    path('video/',include('ugiinbichig.urls.video_urls'))
+    path('video/',include('ugiinbichig.urls.video_urls')),
+    path('punishment/',include('ugiinbichig.urls.punishment_urls')),
+    path('profile_picture/',include('ugiinbichig.urls.profile_ursl')),
 ]

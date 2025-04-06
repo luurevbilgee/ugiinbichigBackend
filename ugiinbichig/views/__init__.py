@@ -15,3 +15,5 @@ from .resetPassword_views import ResetPassword
 from .school_view import SchoolView
 from .mergejil_views import MergejilView
 from .video_view import VideoView
+from .punishment_views import PunishmentView
+from .profile_views import ProfilePictureView

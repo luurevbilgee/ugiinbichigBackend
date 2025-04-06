@@ -11,3 +11,5 @@ from .shape_ser import ShapeSerializer
 from .school_ser import SchoolSerializers
 from .user_ser import UserSerializers
 from .video_ser import VideoSerializer
+from .punishment_ser import PunishmentSerializers
+from .profile_ser import ProfilePictureSerializer
