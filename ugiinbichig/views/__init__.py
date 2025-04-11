@@ -17,3 +17,5 @@ from .mergejil_views import MergejilView
 from .video_view import VideoView
 from .punishment_views import PunishmentView
 from .profile_views import ProfilePictureView
+from .getAncester import AncestorsView
+from .getHumanDetails import HumanDetails

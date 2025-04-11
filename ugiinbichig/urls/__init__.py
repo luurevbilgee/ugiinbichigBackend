@@ -13,4 +13,6 @@ urlpatterns = [
     path('video/',include('ugiinbichig.urls.video_urls')),
     path('punishment/',include('ugiinbichig.urls.punishment_urls')),
     path('profile_picture/',include('ugiinbichig.urls.profile_ursl')),
+    path('ancestors/', include('ugiinbichig.urls.get_ancestors_url')),
+    path('humanDetails/', include('ugiinbichig.urls.get_human_details_urls')),
 ]

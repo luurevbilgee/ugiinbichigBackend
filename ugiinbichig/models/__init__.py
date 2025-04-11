@@ -12,3 +12,5 @@ from .shape_model import Shape
 from .video_model import Video
 from .punishment_model import Punishment
 from .profile_model import ProfilePicture
+from .getAncestorsInfo import get_ancestors_info
+from .getHumanDetails import get_human_details
